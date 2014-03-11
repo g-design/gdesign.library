@@ -16,8 +16,7 @@ public class NetworkServerTest {
 	
 	public NetworkServerTest(int port) throws FileNotFoundException, IOException{
 		flServer = new NetworkServer(port, NetworkServer.AUTHMODE.WHITELIST);
-		flServer.addUserToWhitelist("agaida", 0);	
-		flServer.addUserToWhitelist("wwohlgemuth", 0);	
+		flServer.addUserToWhitelist("testuser", 0);	
 		flServer.addNetworkServerListerner(new NetworkServerListener() {
 		
 			@Override
@@ -55,10 +54,8 @@ public class NetworkServerTest {
 	
 	private void broadcastStatus(NetworkServerSocketConnection c, int status ){
 		try {
-			String targets = "";
 			for (NetworkServerSocketConnection con : clientStates.keySet()){
 				if (!con.equals(c)){
-					targets += con.getUsername()+",";
 					con.sendMessage(new NetworkProtocol(NetworkProtocol.STATUS, c.getUsername(), status));
 				}
 			}
