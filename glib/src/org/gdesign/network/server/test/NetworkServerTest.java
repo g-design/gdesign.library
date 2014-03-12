@@ -11,13 +11,12 @@ import org.gdesign.network.server.NetworkServerSocketConnection;
 
 public class NetworkServerTest {
 	
-	private NetworkServer flServer;
+	private NetworkServer server;
 	private HashMap<NetworkServerSocketConnection, Integer> clientStates = new HashMap<>();
 	
 	public NetworkServerTest(int port) throws FileNotFoundException, IOException{
-		flServer = new NetworkServer(port, NetworkServer.AUTHMODE.WHITELIST);
-		flServer.addUserToWhitelist("testuser", 0);	
-		flServer.addNetworkServerListerner(new NetworkServerListener() {
+		server = new NetworkServer(port, NetworkServer.AUTHMODE.WHITELIST);
+		server.addNetworkServerListerner(new NetworkServerListener() {
 		
 			@Override
 			public void messageReceived(NetworkServerSocketConnection s, Object p) {
@@ -49,7 +48,8 @@ public class NetworkServerTest {
 				clientStates.remove(s);
 			}
 		});	
-		
+		server.enableDebug(true);
+		server.addUserToWhitelist("testuser", 0);
 	}
 	
 	private void broadcastStatus(NetworkServerSocketConnection c, int status ){
