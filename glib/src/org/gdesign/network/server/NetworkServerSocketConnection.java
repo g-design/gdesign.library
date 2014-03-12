@@ -83,6 +83,7 @@ public class NetworkServerSocketConnection extends Thread implements Runnable {
 			break;
 		}
 		if (isConnected) this.socket.setSoTimeout(NetworkProtocol.TIMEOUT);
+		else if (server.DEBUG) System.out.println("Client authentication failed.");
 		return isConnected;
 	}
 	

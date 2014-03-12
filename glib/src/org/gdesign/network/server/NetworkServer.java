@@ -11,11 +11,11 @@ import org.gdesign.network.protocol.NetworkProtocol;
 public class NetworkServer {
 
 	public static int TIMEOUT = 600000;
+	public static enum AUTHMODE {WHITELIST,PASSWORD};
 	
 	private List<NetworkServerListener> listener = new ArrayList<NetworkServerListener>(); 
 	
-	public static enum AUTHMODE {WHITELIST,PASSWORD};
-	public static boolean DEBUG = false;
+	public boolean DEBUG = false;
 	
 	private HashMap<String , Integer> whitelist = new HashMap<>();
 	private HashMap<String , String> passdb = new HashMap<>();
@@ -34,11 +34,13 @@ public class NetworkServer {
 			public void run() {
 					try {
 						server = new ServerSocket(Port);
+						if (DEBUG) System.out.println("Server started. Listening on port: "+server.getLocalPort());
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
 					while (!server.isClosed()){
 						try {
+							if (DEBUG) System.out.println("Waiting for client");
 							newClient(server.accept());
 						} catch (IOException e) {
 							
@@ -67,6 +69,7 @@ public class NetworkServer {
 	}
 	
 	public void broadcast(String text) throws IOException{
+		if (DEBUG) System.out.println("Broadcasting message: "+text);
 		NetworkProtocol broadcastMessage = new NetworkProtocol(NetworkProtocol.MESSAGE,"SERVERBROADCAST", text);
 	     for (NetworkServerSocketConnection s : clients) {
 		    	 s.sendMessage(broadcastMessage);
@@ -86,6 +89,7 @@ public class NetworkServer {
 	}
 	
 	public synchronized void delClient(NetworkServerSocketConnection c){
+		if (DEBUG) System.out.println("Removing client from list: " +c.getSocket().getInetAddress()+":"+c.getSocket().getPort());
 		for (NetworkServerListener l : listener){
 			l.clientDisconnected(c);
 		}
@@ -94,12 +98,14 @@ public class NetworkServer {
 	}
 	
 	private void newClient(Socket s) throws IOException, ClassNotFoundException{
+		if (DEBUG) System.out.println("New client connected: "+s.getInetAddress()+":"+s.getPort());
 		clients.add(new NetworkServerSocketConnection(this, s));
 	}
 	
 	private boolean isAlreadyConnected(String username){
 		for (NetworkServerSocketConnection con : clients) {
 			if (con.getUsername().compareTo(username) == 0 && con.isConnected()) {
+				if (DEBUG) System.out.println("New already connected. Connection refused. "+con.toString());
 				con.closeConnection();
 				return true; 
 			}
@@ -108,16 +114,18 @@ public class NetworkServer {
 	}
 		
 	public void clientAuthed(NetworkServerSocketConnection socket){
-		for (NetworkServerListener l : listener) {
+		if (DEBUG) System.out.println("Client authenticated.\n"+socket.toString());
+		for (NetworkServerListener l : listener) { 
 			l.clientAuthenticated(socket);
-			NetworkServerConsole.updateMap(connectionInfo, socket);
+			NetworkServerConsole.updateMap(connectionInfo, socket, DEBUG);
 		}
 	}
 	
 	public void messageReceived(NetworkServerSocketConnection socket, Object protocol){
+		if (DEBUG) System.out.println("Message received from " +socket.getConnectionId() +": "+ protocol.toString());
 		for (NetworkServerListener l : listener){
 			l.messageReceived(socket, protocol);
-			NetworkServerConsole.updateMap(connectionInfo, socket);
+			NetworkServerConsole.updateMap(connectionInfo, socket, DEBUG);
 		}
 	}
 	
@@ -126,6 +134,7 @@ public class NetworkServer {
 		for (NetworkServerSocketConnection s : clients){
 			if (clientName.equals(s.getUsername())) c = s;
 		}
+		if (DEBUG) System.out.println("Client disconnected: "+c.toString());
 		c.closeConnection();
 	}
 	
@@ -150,6 +159,11 @@ public class NetworkServer {
 		if (t=="") t+= "whitelist is empty.\n";
 		return t;
 	}
+	
+	public void enableDebug(boolean enabled){
+		this.DEBUG = enabled;
+	}
+	
 	
 	public String listClientDetails(String name){
 		String t = connectionInfo.get(name)+"\n";
