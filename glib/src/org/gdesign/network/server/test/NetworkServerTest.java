@@ -11,6 +11,8 @@ import org.gdesign.network.server.NetworkServerSocketConnection;
 
 public class NetworkServerTest {
 	
+	public static final String TESTENTRY = "o|o";
+	
 	private NetworkServer server;
 	private HashMap<NetworkServerSocketConnection, Integer> clientStates = new HashMap<>();
 	
