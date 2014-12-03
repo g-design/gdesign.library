@@ -111,7 +111,10 @@ public class NetworkServerSocketConnection extends Thread implements Runnable {
 			if (e instanceof SocketTimeoutException || e instanceof SocketException) {
 				closeConnection();
 			}
-			else System.err.println("Protocol error. "+e);
+			else {
+				System.err.println("Protocol error. "+e);
+				closeConnection();
+			}
 		}
 	}
 	

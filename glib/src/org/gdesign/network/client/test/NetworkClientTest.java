@@ -36,7 +36,7 @@ public class NetworkClientTest {
 	 */
 	public static void main(String[] args) {
 		try {
-			NetworkClientTest c = new NetworkClientTest("localhost", 1337, "testuser");
+			NetworkClientTest c = new NetworkClientTest("localhost", 1337, "agaida");
 			c.sendMessage("test123");
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
